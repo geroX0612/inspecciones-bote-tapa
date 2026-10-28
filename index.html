@@ -89,6 +89,36 @@ table.tbl th{color:#4e6575;font-weight:650;background:#f5f9fb}
 .hbar .track{background:#eef3f6;border-radius:4px;height:14px}
 .hbar .fill{background:var(--bad);height:14px;border-radius:4px}
 .lock{max-width:380px;margin:60px auto}
+.rep-head{border-bottom:2px solid #123148;padding-bottom:10px;margin-bottom:14px}
+.foto-box{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.foto-btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#274559}
+#fotoPrev{max-height:120px;max-width:160px;border-radius:8px;border:1px solid #cad9e4}
+.insp{font-size:14px;color:#123148;margin-top:4px}
+.insp b{font-weight:700}
+.thumb{display:block;margin-top:8px}
+.thumb img{max-width:180px;max-height:135px;border-radius:8px;border:1px solid #dbe5eb}
+.fotos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fotos-grid figure{margin:0;border:1px solid #dbe5eb;border-radius:8px;padding:6px;break-inside:avoid}
+.fotos-grid img{width:100%;height:170px;object-fit:cover;border-radius:6px;background:#f0f4f7}
+.fotos-grid figcaption{font-size:11px;color:#425967;margin-top:4px;line-height:1.3}
+.fotos-grid figure.nc{border-color:#f3b8ad}
+@media(max-width:560px){.fotos-grid{grid-template-columns:repeat(2,1fr)}}
+.rep-head h2{margin:0 0 4px;font-size:20px}
+.rep-sec{margin-top:18px}
+.rep-sec h3{margin:0 0 8px;font-size:15px;color:#123148}
+.semana{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.semana input{width:auto}
+@media print{
+  @page{size:letter;margin:12mm}
+  html,body{background:#fff!important}
+  header.top,nav.tabs,#colaBox,.no-print,#acceso{display:none!important}
+  #app>section:not(#reporte){display:none!important}
+  #reporte{display:block!important;border:0;box-shadow:none;padding:0;margin:0}
+  .wrap{margin:0;max-width:none;padding:0}
+  .rep-sec{break-inside:avoid}
+  .kpis{grid-template-columns:repeat(4,1fr)!important}
+  table.tbl{font-size:11px}
+}
 .red{display:inline-flex;align-items:center;gap:6px;font-size:12px;margin-top:6px;color:#cfe6f0}
 .red i{width:8px;height:8px;border-radius:50%;background:#3ccf7a;display:inline-block}
 .red.off i{background:#f0a23c}
@@ -131,6 +161,7 @@ table.tbl th{color:#4e6575;font-weight:650;background:#f5f9fb}
       <button data-t="pendientes">No conformidades <span class="badge hide" id="badgePend">0</span></button>
       <button data-t="historial">Historial</button>
       <button data-t="resumen">Resumen</button>
+      <button data-t="reporte">Reporte semanal</button>
     </nav>
 
     <div class="cola hide" id="colaBox"><span id="colaTxt"></span><button class="sec" onclick="enviarCola(true)">Enviar ahora</button></div>
@@ -167,6 +198,14 @@ table.tbl th{color:#4e6575;font-weight:650;background:#f5f9fb}
           </div>
         </div>
         <div class="f" style="margin-top:13px"><label for="observaciones">Observaciones adicionales</label><textarea id="observaciones" maxlength="650" placeholder="Detalles de inspección, moldes, circunstancias…"></textarea></div>
+        <div class="f" style="margin-top:13px"><label>Foto de la inspección (opcional · recomendada si hay no conformidad)</label>
+          <div class="foto-box">
+            <label class="sec foto-btn" for="fotoInput">📷 Tomar o elegir foto</label>
+            <input type="file" id="fotoInput" accept="image/*" capture="environment" hidden>
+            <img id="fotoPrev" class="hide" alt="Vista previa de la foto">
+            <button type="button" class="sec hide" id="fotoQuitar">Quitar foto</button>
+          </div>
+        </div>
         <div class="bar" style="margin-top:16px"><span class="muted">* Obligatorios · La hora y el turno los asigna el sistema</span><button id="guardar" type="submit" class="primary">Guardar inspección</button></div>
         <div class="notice" id="mensaje" role="status"></div>
       </form>
@@ -200,6 +239,7 @@ table.tbl th{color:#4e6575;font-weight:650;background:#f5f9fb}
         <select id="fMaq"><option value="">Todas las máquinas</option></select>
         <select id="fTurno"><option value="">Todos los turnos</option></select>
         <select id="fRes"><option value="">Todos los resultados</option><option>Conforme</option><option>No conforme</option></select>
+        <select id="fInsp"><option value="">Todos los inspectores</option></select>
         <input type="date" id="fDesde" title="Desde"><input type="date" id="fHasta" title="Hasta">
         <input id="fTexto" placeholder="Buscar inspector, lote, defecto…">
       </div>
@@ -222,6 +262,27 @@ table.tbl th{color:#4e6575;font-weight:650;background:#f5f9fb}
         <div><h3>Por presentación</h3><div style="overflow-x:auto"><table class="tbl" id="rPres"></table></div></div>
       </div>
     </section>
+
+    <!-- REPORTE SEMANAL -->
+    <section class="panel hide" id="reporte">
+      <div class="bar no-print">
+        <h2 style="margin:0">Reporte semanal</h2>
+        <div class="semana">
+          <button class="sec" onclick="semanaRel(-1)" title="Semana anterior">◀</button>
+          <input type="date" id="repLunes" title="Elige cualquier día de la semana">
+          <button class="sec" onclick="semanaRel(1)" title="Semana siguiente">▶</button>
+          <button class="sec" onclick="generarReporte()">Actualizar</button>
+          <select id="repFotos" style="width:auto" title="Fotos que se incluyen en el reporte">
+            <option value="nc">Fotos: solo no conformidades</option><option value="todas">Fotos: todas</option><option value="ninguna">Sin fotos</option>
+          </select>
+        </div>
+      </div>
+      <div class="bar no-print" style="margin:12px 0 4px">
+        <span class="muted">Semana de lunes a domingo, con todos los registros de esos días.</span>
+        <div style="display:flex;gap:8px"><button class="sec" onclick="exportarReporteCSV()">Descargar Excel</button><button class="primary" onclick="window.print()">Imprimir / PDF</button></div>
+      </div>
+      <div id="repCuerpo"><p class="muted">Elige una semana para generar el reporte.</p></div>
+    </section>
   </div>
 </main>
 
@@ -231,7 +292,7 @@ const el = id => document.getElementById(id);
 const S = { pin: '', cfg: null, skew: 0, datos: [], cola: [], tab: 'captura', enviando: false };
 const LS = {
   get(k, d) { try { const v = localStorage.getItem('bt_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('bt_' + k, JSON.stringify(v)); } catch (e) {} }
+  set(k, v) { try { localStorage.setItem('bt_' + k, JSON.stringify(v)); return true; } catch (e) { return false; } }
 };
 const API = 'https://script.google.com/macros/s/AKfycbwBh5nWT8UFblm5kGD9t3vMecjGYm9FdKpnKWHiiC5CryxDUUeUyJHf1AHl3ecC7YIY/exec';
 async function call(fn, ...args) {
@@ -406,6 +467,42 @@ function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
 }
 
+/* ═════════ Foto de la inspección ═════════ */
+S.foto = null;
+const urlFoto = (id, w) => `https://lh3.googleusercontent.com/d/${id}=w${w || 600}`;
+const urlFotoDrive = id => `https://drive.google.com/file/d/${id}/view`;
+function cargarImagen(src) { return new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = src; }); }
+async function comprimirFoto(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await cargarImagen(url), M = 1280;
+    const k = Math.min(1, M / Math.max(img.naturalWidth, img.naturalHeight));
+    const cv = document.createElement('canvas'); cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    return cv.toDataURL('image/jpeg', 0.72);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function sellarFoto(dataUrl, texto) { // imprime fecha, hora, máquina e inspector sobre la foto
+  const img = await cargarImagen(dataUrl), cv = document.createElement('canvas');
+  cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+  const g = cv.getContext('2d'); g.drawImage(img, 0, 0);
+  const fs = Math.max(14, Math.round(cv.width / 40)), h = fs * 1.9;
+  g.fillStyle = 'rgba(18,49,72,0.78)'; g.fillRect(0, cv.height - h, cv.width, h);
+  g.fillStyle = '#fff'; g.font = `600 ${fs}px system-ui, sans-serif`; g.textBaseline = 'middle';
+  g.fillText(texto, fs * 0.6, cv.height - h / 2, cv.width - fs * 1.2);
+  return cv.toDataURL('image/jpeg', 0.72);
+}
+function quitarFoto() { S.foto = null; el('fotoInput').value = ''; el('fotoPrev').classList.add('hide'); el('fotoPrev').removeAttribute('src'); el('fotoQuitar').classList.add('hide'); }
+el('fotoInput').addEventListener('change', async () => {
+  const f = el('fotoInput').files && el('fotoInput').files[0]; if (!f) return;
+  try {
+    aviso('mensaje', 'Procesando foto…');
+    S.foto = await comprimirFoto(f);
+    el('fotoPrev').src = S.foto; el('fotoPrev').classList.remove('hide'); el('fotoQuitar').classList.remove('hide'); aviso('mensaje', '');
+  } catch (e) { quitarFoto(); aviso('mensaje', 'No se pudo leer la foto. Intenta de nuevo.', true); }
+});
+el('fotoQuitar').addEventListener('click', quitarFoto);
+
 el('form').addEventListener('submit', async e => {
   e.preventDefault();
   const r = resultado();
@@ -426,25 +523,32 @@ el('form').addEventListener('submit', async e => {
 
   LS.set('inspector', p.inspector);
   LS.set('ultimo', { tipo: p.tipo, maquina: p.maquina, presentacion: p.presentacion });
+  if (S.foto) {
+    const pt = partes(p.capturado);
+    try { p.foto = await sellarFoto(S.foto, `${fCorta(pt.fecha)} ${pt.hora} · ${p.maquina} · ${p.resultado} · ${p.inspector}`); } catch (err) { p.foto = S.foto; }
+  }
   S.enviando = true; el('guardar').disabled = true; aviso('mensaje', 'Guardando…');
   try {
     const out = await call('guardar', S.pin, p);
     aviso('mensaje', `✓ Guardado · ${p.maquina} · franja ${out.franja.inicio}–${out.franja.fin} · turno ${out.turno}. Siguiente a las ${out.franja.fin}.`);
     limpiarForm();
-    S.datos.unshift({ ...p, id: out.id, fecha: out.fecha, hora: out.hora, turno: out.turno, clave: k, franja: out.franja.inicio + '–' + out.franja.fin, seguimiento: r === 'No conforme' ? 'Pendiente' : 'Cerrado' });
+    S.datos.unshift({ ...p, foto: undefined, fotoId: out.fotoId || '', id: out.id, fecha: out.fecha, hora: out.hora, turno: out.turno, clave: k, franja: out.franja.inicio + '–' + out.franja.fin, seguimiento: r === 'No conforme' ? 'Pendiente' : 'Cerrado' });
     actualizar(true);
   } catch (err) {
     if (esControlado(err)) { aviso('mensaje', limpiaMsg(err), true); actualizar(true); }
     else {
-      S.cola.push({ p: { ...p, diferido: true }, clave: k }); LS.set('cola', S.cola); pintarCola();
-      aviso('mensaje', '⚠ Sin conexión: el registro quedó guardado en este dispositivo y se enviará solo al volver la señal (máx. 8 h).', true);
+      S.cola.push({ p: { ...p, diferido: true }, clave: k });
+      let sinFoto = false;
+      if (!LS.set('cola', S.cola) && p.foto) { S.cola[S.cola.length - 1].p.foto = null; LS.set('cola', S.cola); sinFoto = true; }
+      pintarCola();
+      aviso('mensaje', '⚠ Sin conexión: el registro quedó guardado en este dispositivo y se enviará solo al volver la señal (máx. 8 h).' + (sinFoto ? ' La memoria del celular está llena: este registro se enviará sin foto.' : ''), true);
       limpiarForm();
     }
   } finally { S.enviando = false; marcarMaquinas(); estadoFranja(); }
 });
 function limpiarForm() {
   ['lote', 'operador', 'accion', 'observaciones'].forEach(id => el(id).value = '');
-  el('defecto').value = ''; el('estadoMaterial').value = ''; el('noConformes').value = '0';
+  el('defecto').value = ''; el('estadoMaterial').value = ''; el('noConformes').value = '0'; quitarFoto();
   document.querySelector('input[name=resultado][value="Conforme"]').checked = true; sincronizarResultado();
 }
 
@@ -494,7 +598,7 @@ async function actualizar(silencioso) {
 document.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => {
   S.tab = b.dataset.t;
   document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('active', x === b));
-  ['captura', 'tablero', 'pendientes', 'historial', 'resumen'].forEach(id => el(id).classList.toggle('hide', id !== S.tab));
+  ['captura', 'tablero', 'pendientes', 'historial', 'resumen', 'reporte'].forEach(id => el(id).classList.toggle('hide', id !== S.tab));
   pintarTab();
   if (S.tab !== 'captura') actualizar(true);
 }));
@@ -503,9 +607,10 @@ function pintarTab() {
   else if (S.tab === 'pendientes') pintarPendientes();
   else if (S.tab === 'historial') pintarHistorial();
   else if (S.tab === 'resumen') pintarResumen();
+  else if (S.tab === 'reporte' && !R.datos) generarReporte();
 }
 el('tabTurno').addEventListener('change', pintarTablero);
-['fTipo', 'fMaq', 'fTurno', 'fRes', 'fDesde', 'fHasta', 'fTexto'].forEach(id => el(id).addEventListener('input', pintarHistorial));
+['fTipo', 'fMaq', 'fTurno', 'fRes', 'fInsp', 'fDesde', 'fHasta', 'fTexto'].forEach(id => el(id).addEventListener('input', pintarHistorial));
 el('rRango').addEventListener('change', pintarResumen);
 
 /* ═════════ Tablero ═════════ */
@@ -570,15 +675,22 @@ function tarjeta(x) {
   b.className = 'pill' + (x.resultado === 'No conforme' ? (x.seguimiento === 'Pendiente' ? ' pend' : ' bad') : '');
   b.textContent = x.resultado === 'No conforme' ? (x.seguimiento === 'Pendiente' ? 'NC pendiente' : 'NC cerrada') : 'Conforme';
   h.append(t, b);
+  const ins = document.createElement('div'); ins.className = 'insp';
+  const insB = document.createElement('b'); insB.textContent = x.inspector || 'Sin nombre';
+  ins.append('👤 Inspeccionó: ', insB); a.append(h, ins);
   const s = document.createElement('div'); s.className = 'muted';
-  s.textContent = `${x.fecha} ${x.hora}${x.franja ? ' (franja ' + x.franja + ')' : ''} · Turno ${x.turno} · ${x.inspector} · ${x.cantidad} inspeccionadas / ${x.noConformes} no conformes${x.lote ? ' · Lote ' + x.lote : ''}${x.presentacion ? ' · ' + x.presentacion : ''}`;
-  a.append(h, s);
+  s.textContent = `${x.fecha} ${x.hora}${x.franja ? ' (franja ' + x.franja + ')' : ''} · Turno ${x.turno} · ${x.cantidad} inspeccionadas / ${x.noConformes} no conformes${x.lote ? ' · Lote ' + x.lote : ''}${x.presentacion ? ' · ' + x.presentacion : ''}`;
+  a.append(s);
   let det = '';
   if (x.resultado === 'No conforme') det += `Defecto: ${x.defecto} · Operador: ${x.operador}\nAcción: ${x.accion}\nMaterial: ${x.estadoMaterial}`;
   if (x.cerradoPor) det += `\nCerrada por ${x.cerradoPor} el ${x.cerradoEl}: ${x.comentarioCierre}`;
   if (x.observaciones) det += (det ? '\n' : '') + 'Obs.: ' + x.observaciones;
   if (x.origen && x.origen !== 'En línea') det += (det ? '\n' : '') + x.origen;
   if (det) { const p = document.createElement('p'); p.className = 'details'; p.textContent = det; a.append(p); }
+  if (x.fotoId) {
+    const l = document.createElement('a'); l.className = 'thumb'; l.href = urlFotoDrive(x.fotoId); l.target = '_blank'; l.rel = 'noopener';
+    const im = document.createElement('img'); im.loading = 'lazy'; im.alt = 'Foto de la inspección'; im.src = urlFoto(x.fotoId, 400); l.append(im); a.append(l);
+  }
   return a;
 }
 function pintarPendientes() {
@@ -612,8 +724,8 @@ function formCierre(x) {
 
 /* ═════════ Historial ═════════ */
 function filtrados() {
-  const t = el('fTipo').value, m = el('fMaq').value, u = el('fTurno').value, r = el('fRes').value, d1 = el('fDesde').value, d2 = el('fHasta').value, q = el('fTexto').value.trim().toLowerCase();
-  return S.datos.filter(x => (!t || x.tipo === t) && (!m || x.maquina === m) && (!u || x.turno === u) && (!r || x.resultado === r) && (!d1 || x.fecha >= d1) && (!d2 || x.fecha <= d2) &&
+  const ins = el('fInsp').value, t = el('fTipo').value, m = el('fMaq').value, u = el('fTurno').value, r = el('fRes').value, d1 = el('fDesde').value, d2 = el('fHasta').value, q = el('fTexto').value.trim().toLowerCase();
+  return S.datos.filter(x => (!ins || x.inspector === ins) && (!t || x.tipo === t) && (!m || x.maquina === m) && (!u || x.turno === u) && (!r || x.resultado === r) && (!d1 || x.fecha >= d1) && (!d2 || x.fecha <= d2) &&
     (!q || [x.inspector, x.lote, x.defecto, x.operador, x.accion, x.observaciones, x.maquina].join(' ').toLowerCase().includes(q)));
 }
 function kpis(root, d) {
@@ -622,6 +734,9 @@ function kpis(root, d) {
   root.replaceChildren(...vals.map(([k, v]) => { const dv = document.createElement('div'); dv.className = 'kpi'; const s = document.createElement('small'); s.textContent = k; const b = document.createElement('strong'); b.textContent = v; dv.append(s, b); return dv; }));
 }
 function pintarHistorial() {
+  const sel = el('fInsp'), actual = sel.value;
+  const nombres = [...new Set(S.datos.map(x => x.inspector).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  opts(sel, nombres, ['', 'Todos los inspectores']); if (nombres.includes(actual)) sel.value = actual;
   const d = filtrados(); kpis(el('kpis'), d);
   const root = el('registros'); root.replaceChildren();
   if (!d.length) { root.textContent = S.datos.length ? 'No hay registros para estos filtros.' : 'Aún no hay registros.'; return; }
@@ -629,9 +744,9 @@ function pintarHistorial() {
   if (d.length > 200) { const p = document.createElement('p'); p.className = 'muted'; p.textContent = `Mostrando 200 de ${d.length}. Descarga el CSV para ver todos.`; root.append(p); }
 }
 function exportarCSV() {
-  const cols = [['fecha', 'Fecha'], ['hora', 'Hora'], ['franja', 'Franja'], ['turno', 'Turno'], ['tipo', 'Producto'], ['maquina', 'Máquina'], ['presentacion', 'Presentación'], ['lote', 'Lote'], ['inspector', 'Inspector'], ['cantidad', 'Inspeccionadas'], ['noConformes', 'No conformes'], ['resultado', 'Resultado'], ['defecto', 'Defecto'], ['operador', 'Operador'], ['accion', 'Acción'], ['estadoMaterial', 'Estado material'], ['seguimiento', 'Seguimiento'], ['cerradoPor', 'Cerrado por'], ['cerradoEl', 'Cerrado el'], ['comentarioCierre', 'Comentario cierre'], ['observaciones', 'Observaciones'], ['id', 'ID']];
+  const cols = [['fecha', 'Fecha'], ['hora', 'Hora'], ['franja', 'Franja'], ['turno', 'Turno'], ['tipo', 'Producto'], ['maquina', 'Máquina'], ['presentacion', 'Presentación'], ['lote', 'Lote'], ['inspector', 'Inspector'], ['cantidad', 'Inspeccionadas'], ['noConformes', 'No conformes'], ['resultado', 'Resultado'], ['defecto', 'Defecto'], ['operador', 'Operador'], ['accion', 'Acción'], ['estadoMaterial', 'Estado material'], ['seguimiento', 'Seguimiento'], ['cerradoPor', 'Cerrado por'], ['cerradoEl', 'Cerrado el'], ['comentarioCierre', 'Comentario cierre'], ['observaciones', 'Observaciones'], ['fotoUrl', 'Foto'], ['id', 'ID']];
   const esc = v => { let s = String(v ?? ''); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
-  const csv = '﻿' + [cols.map(c => esc(c[1])).join(','), ...filtrados().map(x => cols.map(c => esc(x[c[0]])).join(','))].join('\r\n');
+  const csv = '﻿' + [cols.map(c => esc(c[1])).join(','), ...filtrados().map(x => cols.map(c => esc(c[0] === 'fotoUrl' ? (x.fotoId ? urlFotoDrive(x.fotoId) : '') : x[c[0]])).join(','))].join('\r\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   a.download = 'inspecciones_' + partes(ahoraMs()).fecha + '.csv'; document.body.append(a); a.click(); a.remove();
 }
@@ -665,6 +780,146 @@ function pintarResumen() {
     const c = document.createElement('span'); c.textContent = v; c.style.textAlign = 'right';
     row.append(n, tr, c); root.append(row);
   });
+}
+
+/* ═════════ Reporte semanal ═════════ */
+const R = { lunes: null, datos: null, desde: '', hasta: '' };
+const addDias = (f, n) => { const d = new Date(f + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const lunesDe = f => addDias(f, -((new Date(f + 'T00:00:00Z').getUTCDay() + 6) % 7));
+const fCorta = f => f.slice(8, 10) + '/' + f.slice(5, 7) + '/' + f.slice(0, 4);
+const pct = (a, b) => b ? (a / b * 100).toFixed(1) + '%' : '—';
+const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+function semanaRel(n) {
+  R.lunes = addDias(R.lunes || lunesDe(partes(ahoraMs()).fecha), 7 * n);
+  el('repLunes').value = R.lunes; generarReporte();
+}
+el('repFotos').addEventListener('change', () => { if (R.datos) pintarReporte(); });
+el('repLunes').addEventListener('change', () => {
+  if (!el('repLunes').value) return;
+  R.lunes = lunesDe(el('repLunes').value); el('repLunes').value = R.lunes; generarReporte();
+});
+async function generarReporte() {
+  if (!S.cfg) return;
+  if (!R.lunes) { R.lunes = lunesDe(partes(ahoraMs()).fecha); el('repLunes').value = R.lunes; }
+  const desde = R.lunes, hasta = addDias(R.lunes, 6);
+  el('repCuerpo').textContent = 'Generando reporte…';
+  try {
+    R.datos = (await call('reporte', S.pin, desde, hasta)) || [];
+    R.desde = desde; R.hasta = hasta; pintarReporte();
+  } catch (e) {
+    R.datos = null;
+    el('repCuerpo').textContent = 'No se pudo generar el reporte: ' + limpiaMsg(e) + '. El reporte necesita conexión a internet.';
+  }
+}
+function agrega(lista, key) {
+  const m = new Map();
+  lista.forEach(x => {
+    const k = key(x), o = m.get(k) || { insp: 0, pz: 0, nc: 0, n: 0 };
+    o.insp++; o.pz += x.cantidad; o.nc += x.noConformes; if (x.resultado === 'No conforme') o.n++; m.set(k, o);
+  });
+  return m;
+}
+function tablaRep(titulo, enc, filas, izq) {
+  const sec = document.createElement('div'); sec.className = 'rep-sec';
+  const h = document.createElement('h3'); h.textContent = titulo; sec.append(h);
+  const w = document.createElement('div'); w.style.overflowX = 'auto';
+  const t = document.createElement('table'); t.className = 'tbl';
+  const tr = document.createElement('tr');
+  enc.forEach((x, i) => { const th = document.createElement('th'); th.textContent = x; if (i < (izq || 1)) th.style.textAlign = 'left'; tr.append(th); });
+  t.append(tr);
+  if (!filas.length) { const r = document.createElement('tr'), td = document.createElement('td'); td.colSpan = enc.length; td.textContent = 'Sin datos en la semana.'; r.append(td); t.append(r); }
+  filas.forEach(f => {
+    const r = document.createElement('tr');
+    f.forEach((v, i) => { const td = document.createElement('td'); td.textContent = v; if (i < (izq || 1)) td.style.textAlign = 'left'; r.append(td); });
+    t.append(r);
+  });
+  w.append(t); sec.append(w); return sec;
+}
+function pintarReporte() {
+  const d = R.datos, root = el('repCuerpo'), c = S.cfg.catalogos;
+  root.replaceChildren();
+  // Encabezado
+  const head = document.createElement('div'); head.className = 'rep-head';
+  const h2 = document.createElement('h2'); h2.textContent = 'Reporte semanal de inspecciones de calidad';
+  const sub = document.createElement('div'); sub.textContent = `Bote · Etiquetado · Tapas — Semana del ${fCorta(R.desde)} al ${fCorta(R.hasta)}`;
+  const gen = document.createElement('div'); gen.className = 'muted';
+  const ahora = partes(ahoraMs()); gen.textContent = `Generado el ${fCorta(ahora.fecha)} a las ${ahora.hora} · ${d.length} registros`;
+  head.append(h2, sub, gen); root.append(head);
+
+  // Cumplimiento de franjas
+  const I = S.cfg.intervalo * 60000, ini = Date.parse(R.desde + 'T00:00:00Z') - S.cfg.tzOffsetMin * 60000;
+  const transcurrido = Math.max(0, Math.min(ahoraMs(), ini + 7 * 864e5) - ini), esperadas = Math.floor(transcurrido / I);
+  const unidades = S.cfg.bloqueoPor === 'global' ? [['Área', '', x => true]] :
+    S.cfg.bloqueoPor === 'producto' ? c.productos.map(p => [p, '', x => x.tipo === p]) :
+    c.productos.flatMap(p => (c.maquinas[p] || []).map(m => [p, m, x => x.tipo === p && x.maquina === m]));
+  let hechasTot = 0;
+  const filasMaq = unidades.map(([p, m, f]) => {
+    const sub = d.filter(f), hechas = new Set(sub.filter(x => x.clave).map(x => x.clave)).size;
+    hechasTot += hechas;
+    const pz = sub.reduce((s, x) => s + x.cantidad, 0), nc = sub.reduce((s, x) => s + x.noConformes, 0);
+    return [p, m || '—', `${hechas} / ${esperadas}`, pct(hechas, esperadas), sub.length, pz.toLocaleString('es-MX'), nc, pct(nc, pz)];
+  });
+
+  // KPIs
+  const pz = d.reduce((s, x) => s + x.cantidad, 0), nc = d.reduce((s, x) => s + x.noConformes, 0);
+  const ncs = d.filter(x => x.resultado === 'No conforme');
+  const k = document.createElement('div'); k.className = 'kpis';
+  [['Inspecciones', d.length], ['Piezas inspeccionadas', pz.toLocaleString('es-MX')], ['Piezas no conformes', nc.toLocaleString('es-MX')], ['% no conforme', pct(nc, pz)],
+   ['Registros con NC', ncs.length], ['NC pendientes', ncs.filter(x => x.seguimiento === 'Pendiente').length], ['NC cerradas', ncs.filter(x => x.seguimiento !== 'Pendiente').length],
+   ['Cumplimiento de franjas', pct(hechasTot, esperadas * unidades.length)]].forEach(([a, b]) => {
+    const dv = document.createElement('div'); dv.className = 'kpi'; const s1 = document.createElement('small'); s1.textContent = a;
+    const s2 = document.createElement('strong'); s2.textContent = b; dv.append(s1, s2); k.append(dv);
+  });
+  root.append(k);
+
+  // Por día
+  const porDia = agrega(d, x => x.fecha);
+  root.append(tablaRep('Por día', ['Día', 'Fecha', 'Inspecciones', 'Piezas', 'NC pzs', '% NC', 'Registros NC'],
+    DIAS.map((n, i) => { const f = addDias(R.desde, i), o = porDia.get(f) || { insp: 0, pz: 0, nc: 0, n: 0 }; return [n, fCorta(f), o.insp, o.pz.toLocaleString('es-MX'), o.nc, pct(o.nc, o.pz), o.n]; }), 2));
+  // Por máquina
+  root.append(tablaRep('Por máquina (cumplimiento de franjas de ' + S.cfg.intervalo + ' min)', ['Producto', 'Máquina', 'Franjas', 'Cumplimiento', 'Inspecciones', 'Piezas', 'NC pzs', '% NC'], filasMaq, 2));
+  // Por turno, presentación, inspector
+  const filasAgg = (m, orden) => [...m.entries()].sort(orden || ((a, b) => String(a[0]).localeCompare(String(b[0]), 'es'))).map(([key, o]) => [key, o.insp, o.pz.toLocaleString('es-MX'), o.nc, pct(o.nc, o.pz), o.n]);
+  const encAgg = t => [t, 'Inspecciones', 'Piezas', 'NC pzs', '% NC', 'Registros NC'];
+  root.append(tablaRep('Por turno', encAgg('Turno'), filasAgg(agrega(d, x => 'Turno ' + x.turno))));
+  root.append(tablaRep('Por presentación', encAgg('Presentación'), filasAgg(agrega(d, x => x.tipo + ' · ' + (x.presentacion || 'Sin dato')))));
+  root.append(tablaRep('Por inspector', encAgg('Inspector'), filasAgg(agrega(d, x => x.inspector || 'Sin nombre'), (a, b) => b[1].insp - a[1].insp)));
+  // Defectos
+  const def = new Map();
+  ncs.forEach(x => { const key = x.tipo + '|' + x.defecto, o = def.get(key) || { pz: 0, n: 0 }; o.pz += x.noConformes; o.n++; def.set(key, o); });
+  root.append(tablaRep('Defectos', ['Defecto', 'Producto', 'Piezas NC', 'Registros', '% del total NC'],
+    [...def.entries()].sort((a, b) => b[1].pz - a[1].pz).map(([key, o]) => { const [t, df] = key.split('|'); return [df, t, o.pz, o.n, pct(o.pz, nc)]; }), 2));
+  // Lista de no conformidades
+  root.append(tablaRep('No conformidades de la semana', ['Fecha y hora', 'Turno', 'Máquina', 'Presentación', 'Defecto', 'NC / insp.', 'Inspector', 'Acción', 'Material', 'Estado', 'Cierre'],
+    ncs.slice().sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora)).map(x => [fCorta(x.fecha) + ' ' + x.hora, x.turno, x.maquina, x.presentacion, x.defecto, x.noConformes + ' / ' + x.cantidad, x.inspector, x.accion, x.estadoMaterial, x.seguimiento, x.cerradoPor ? x.cerradoPor + ' (' + x.cerradoEl + '): ' + x.comentarioCierre : '']), 11));
+  // Evidencia fotográfica
+  const modo = el('repFotos').value;
+  if (modo !== 'ninguna') {
+    const fotos = d.filter(x => x.fotoId && (modo === 'todas' || x.resultado === 'No conforme')).sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
+    const sec = document.createElement('div'); sec.className = 'rep-sec';
+    const h = document.createElement('h3'); h.textContent = `Evidencia fotográfica (${modo === 'todas' ? 'todas las inspecciones' : 'no conformidades'}) · ${fotos.length} foto(s)`; sec.append(h);
+    if (!fotos.length) { const pp = document.createElement('p'); pp.className = 'muted'; pp.textContent = 'No hay fotos para esta selección.'; sec.append(pp); }
+    const grid = document.createElement('div'); grid.className = 'fotos-grid';
+    fotos.slice(0, 300).forEach(x => {
+      const fg = document.createElement('figure'); if (x.resultado === 'No conforme') fg.className = 'nc';
+      const im = document.createElement('img'); im.src = urlFoto(x.fotoId, 500); im.alt = 'Foto ' + x.maquina;
+      const cap = document.createElement('figcaption');
+      cap.textContent = `${fCorta(x.fecha)} ${x.hora} · T${x.turno} · ${x.maquina} · ${x.presentacion}\n${x.resultado}${x.defecto ? ' (' + x.defecto + ', ' + x.noConformes + ' pzs)' : ''} · ${x.inspector}`;
+      cap.style.whiteSpace = 'pre-line'; fg.append(im, cap); grid.append(fg);
+    });
+    sec.append(grid);
+    if (fotos.length > 300) { const pp = document.createElement('p'); pp.className = 'muted'; pp.textContent = `Se muestran las primeras 300 de ${fotos.length} fotos.`; sec.append(pp); }
+    root.append(sec);
+  }
+}
+function exportarReporteCSV() {
+  if (!R.datos) return;
+  const cols = [['fecha', 'Fecha'], ['hora', 'Hora'], ['franja', 'Franja'], ['turno', 'Turno'], ['tipo', 'Producto'], ['maquina', 'Máquina'], ['presentacion', 'Presentación'], ['lote', 'Lote'], ['inspector', 'Inspector'], ['cantidad', 'Inspeccionadas'], ['noConformes', 'No conformes'], ['resultado', 'Resultado'], ['defecto', 'Defecto'], ['operador', 'Operador'], ['accion', 'Acción'], ['estadoMaterial', 'Estado material'], ['seguimiento', 'Seguimiento'], ['cerradoPor', 'Cerrado por'], ['cerradoEl', 'Cerrado el'], ['comentarioCierre', 'Comentario cierre'], ['observaciones', 'Observaciones'], ['fotoUrl', 'Foto']];
+  const esc = v => { let s = String(v ?? ''); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const filas = R.datos.slice().sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
+  const csv = '﻿' + [cols.map(c => esc(c[1])).join(','), ...filas.map(x => cols.map(c => esc(c[0] === 'fotoUrl' ? (x.fotoId ? urlFotoDrive(x.fotoId) : '') : x[c[0]])).join(','))].join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `reporte_semanal_${R.desde}_al_${R.hasta}.csv`; document.body.append(a); a.click(); a.remove();
 }
 
 /* Entrada automática si ya se guardó la clave en este dispositivo */
