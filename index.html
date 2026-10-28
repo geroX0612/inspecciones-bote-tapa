@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inspecciones · Botes y Tapas</title>
+<meta name="theme-color" content="#123148">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Inspecciones">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#183348;background:#edf3f7;--azul:#12679a;--marino:#123148;--ok:#117042;--okbg:#e2f6e9;--bad:#aa3524;--badbg:#ffede9;--warn:#8a5a00;--warnbg:#fff8e9;--linea:#dde6ec;--muted:#677887}
+*{box-sizing:border-box}
+body{margin:0;background:#edf3f7}
+.top{background:var(--marino);color:#fff;padding:16px max(16px,calc((100% - 1040px)/2))}
+.top small{color:#afd7e6;letter-spacing:.04em}
+.top h1{font-size:22px;margin:4px 0}
+.topline{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.reloj{text-align:right;font-variant-numeric:tabular-nums}
+.reloj strong{font-size:26px;display:block;line-height:1}
+.reloj span{font-size:13px;color:#cfe6f0}
+.wrap{max-width:1040px;margin:18px auto;padding:0 16px}
+.panel{background:#fff;border:1px solid var(--linea);box-shadow:0 6px 26px #14384c0d;border-radius:16px;padding:20px;margin-bottom:16px}
+h2{font-size:19px;margin:0 0 14px}h3{font-size:15px;margin:6px 0 12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button{border:1px solid #d7e2e9;border-radius:9px;background:#fff;padding:10px 14px;color:#274559;cursor:pointer;font:inherit;font-size:14px}
+.tabs button.active{background:var(--azul);color:#fff;border-color:var(--azul)}
+.badge{display:inline-block;min-width:20px;padding:1px 6px;border-radius:99px;background:var(--bad);color:#fff;font-size:12px;margin-left:4px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.f{display:flex;flex-direction:column;gap:6px}.f.wide{grid-column:span 2}.f.all{grid-column:1/-1}
+label{font-size:12px;font-weight:650;color:#4e6575}
+input,select,textarea{width:100%;padding:11px;border:1px solid #cad9e4;border-radius:9px;background:#fff;color:#203747;font:inherit}
+input[readonly]{background:#f3f7fa;color:#4e6575}
+textarea{min-height:78px;resize:vertical}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice label{font-size:15px;padding:13px;border:1px solid #d4e1e8;border-radius:10px;cursor:pointer;color:#203747}
+.choice label:has(input:checked){border-color:var(--azul);background:#eef6fb}
+.choice input{width:auto;margin-right:6px}
+button.primary{border:0;background:var(--azul);color:#fff;border-radius:10px;padding:12px 20px;font-weight:700;cursor:pointer;font:inherit;font-weight:700}
+button.primary:disabled{background:#8ba3b2;cursor:not-allowed}
+button.sec{border:1px solid #cad9e4;background:#fff;color:#274559;border-radius:10px;padding:9px 14px;cursor:pointer;font:inherit;font-size:14px}
+.bar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:13px}
+.alert{background:var(--warnbg);border:1px solid #f0d79b;border-radius:10px;padding:13px;margin:16px 0}
+.hide{display:none!important}
+.notice{margin-top:12px;font-size:14px;min-height:20px}.error{color:#b42318}.ok{color:var(--ok)}
+.franja{display:flex;gap:12px;align-items:center;border-radius:12px;padding:13px 15px;margin-bottom:16px;border:1px solid}
+.franja .ico{font-size:24px;line-height:1}
+.franja b{display:block;font-size:15px}
+.franja.libre{background:var(--okbg);border-color:#b7e3c6;color:#0d4f2c}
+.franja.ocupada{background:var(--warnbg);border-color:#f0d79b;color:#5b3c00}
+.cola{background:#eef4ff;border:1px solid #c5d6f5;color:#1f3f75;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:#f0f7fb;border-radius:10px;padding:13px}.kpi small{color:#4e6575}
+.kpi strong{font-size:24px;display:block;font-variant-numeric:tabular-nums}
+.filters{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.filters select,.filters input{width:auto;min-width:150px;flex:1}
+.entries{display:grid;gap:9px}
+.entry{border:1px solid #dbe5eb;border-radius:10px;padding:13px}
+.entry .row{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pill{font-size:12px;border-radius:99px;padding:4px 9px;background:var(--okbg);color:#116535;font-weight:700;white-space:nowrap}
+.pill.bad{background:var(--badbg);color:var(--bad)}.pill.pend{background:var(--warnbg);color:var(--warn)}
+.details{font-size:13px;color:#425967;margin:8px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.cierre{margin-top:10px;padding-top:10px;border-top:1px dashed #dbe5eb}
+/* Tablero */
+.tablero{overflow-x:auto;border:1px solid var(--linea);border-radius:10px}
+.tablero table{border-collapse:collapse;font-size:13px;min-width:100%}
+.tablero th,.tablero td{padding:7px 6px;text-align:center;border-bottom:1px solid #eef3f6;white-space:nowrap}
+.tablero th{background:#f5f9fb;font-weight:650;color:#4e6575;position:sticky;top:0}
+.tablero td.maq,.tablero th.maq{text-align:left;position:sticky;left:0;background:#fff;z-index:1;padding-left:10px;border-right:1px solid var(--linea)}
+.tablero th.maq{background:#f5f9fb;z-index:2}
+.tablero tr.grupo td{background:#f0f5f8;text-align:left;font-weight:700;color:#274559;padding-left:10px}
+.c{display:inline-flex;width:30px;height:26px;border-radius:6px;align-items:center;justify-content:center;font-weight:700}
+.c.ok{background:var(--okbg);color:#116535}.c.nc{background:var(--badbg);color:var(--bad)}
+.c.falta{background:#f1f3f5;color:#9aa8b2}.c.abierta{border:2px dashed var(--azul);color:var(--azul)}
+.c.cola{background:#eef4ff;color:#1f3f75}
+.leyenda{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted);align-items:center}
+.leyenda .c{width:22px;height:20px;font-size:11px}
+/* Resumen */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+table.tbl{width:100%;border-collapse:collapse;font-size:13px}
+table.tbl th,table.tbl td{padding:8px;border-bottom:1px solid #eef3f6;text-align:right}
+table.tbl th:first-child,table.tbl td:first-child{text-align:left}
+table.tbl th{color:#4e6575;font-weight:650;background:#f5f9fb}
+.hbar{display:grid;grid-template-columns:150px 1fr 44px;gap:8px;align-items:center;font-size:13px;margin-bottom:7px}
+.hbar .track{background:#eef3f6;border-radius:4px;height:14px}
+.hbar .fill{background:var(--bad);height:14px;border-radius:4px}
+.lock{max-width:380px;margin:60px auto}
+.red{display:inline-flex;align-items:center;gap:6px;font-size:12px;margin-top:6px;color:#cfe6f0}
+.red i{width:8px;height:8px;border-radius:50%;background:#3ccf7a;display:inline-block}
+.red.off i{background:#f0a23c}
+.instalar{border:1px solid #afd7e6;background:transparent;color:#fff;border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;margin-top:8px}
+.footer{text-align:center;color:#6e8291;padding:10px 10px 25px;font-size:12px}
+@media(max-width:760px){.two{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.reloj{text-align:left}.grid{grid-template-columns:1fr 1fr}.f.wide{grid-column:1/-1}.panel{padding:15px}.filters select,.filters input{min-width:calc(50% - 4px)}}
+@media(max-width:420px){.grid{grid-template-columns:1fr}.f{grid-column:1/-1}.hbar{grid-template-columns:110px 1fr 36px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="topline">
+    <div>
+      <small>INSPECCIÓN DE CALIDAD DE BOTE · ETIQUETADO · TAPAS</small>
+      <h1>Inspecciones de calidad</h1>
+      <div>Botes y Tapas · Captura compartida por turnos</div>
+      <button class="instalar hide" id="btnInstalar">⬇ Instalar app</button>
+    </div>
+    <div class="reloj hide" id="reloj"><strong id="relojHora">--:--</strong><span id="relojInfo"></span><br><span class="red" id="red"><i></i><span id="redTxt">En línea</span></span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Acceso -->
+  <section class="panel lock" id="acceso">
+    <h2>Acceso</h2>
+    <p class="muted">Escribe la clave del piloto que te compartió el responsable.</p>
+    <form id="formPin">
+      <div class="f"><label for="pin">Clave de acceso</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" required></div>
+      <div class="bar" style="margin-top:14px"><span></span><button class="primary" type="submit" id="btnPin">Entrar</button></div>
+      <div class="notice" id="msgPin" role="status"></div>
+    </form>
+  </section>
+
+  <div id="app" class="hide">
+    <nav class="tabs" id="tabs">
+      <button data-t="captura" class="active">Nueva inspección</button>
+      <button data-t="tablero">Tablero del turno</button>
+      <button data-t="pendientes">No conformidades <span class="badge hide" id="badgePend">0</span></button>
+      <button data-t="historial">Historial</button>
+      <button data-t="resumen">Resumen</button>
+    </nav>
+
+    <div class="cola hide" id="colaBox"><span id="colaTxt"></span><button class="sec" onclick="enviarCola(true)">Enviar ahora</button></div>
+
+    <!-- CAPTURA -->
+    <section class="panel" id="captura">
+      <h2>Registro de inspección</h2>
+      <div class="franja libre" id="franjaBox"><span class="ico" id="franjaIco">✓</span><div><b id="franjaTit">Cargando…</b><span id="franjaSub" class="muted"></span></div></div>
+      <form id="form">
+        <div class="grid">
+          <div class="f"><label for="tipo">Producto *</label><select id="tipo" required></select></div>
+          <div class="f"><label for="maquina">Máquina *</label><select id="maquina" required></select></div>
+          <div class="f"><label for="inspector">Inspector *</label><input id="inspector" required maxlength="90" placeholder="Nombre o iniciales"></div>
+          <div class="f"><label>Fecha y hora</label><input id="ahoraTxt" readonly title="La pone el sistema automáticamente"></div>
+          <div class="f"><label>Turno</label><input id="turnoTxt" readonly title="Se calcula con la hora"></div>
+          <div class="f"><label for="presentacion">Presentación *</label><select id="presentacion" required></select></div>
+          <div class="f"><label for="lote">Lote / orden</label><input id="lote" maxlength="80" placeholder="Código opcional"></div>
+          <div class="f"><label for="cantidad">Piezas inspeccionadas *</label><input id="cantidad" type="number" inputmode="numeric" min="1" step="1" required value="10"></div>
+          <div class="f"><label for="noConformes">Piezas no conformes *</label><input id="noConformes" type="number" inputmode="numeric" min="0" step="1" required value="0"></div>
+          <div class="f all"><label>Resultado</label>
+            <div class="choice">
+              <label><input type="radio" name="resultado" value="Conforme" checked>Conforme</label>
+              <label><input type="radio" name="resultado" value="No conforme">No conforme</label>
+            </div>
+          </div>
+        </div>
+        <div id="noConformidad" class="alert hide">
+          <h3>⚠ Registro de no conformidad</h3>
+          <div class="grid">
+            <div class="f"><label for="defecto">Defecto observado *</label><select id="defecto"></select></div>
+            <div class="f"><label for="operador">Operador notificado *</label><input id="operador" maxlength="90" placeholder="Nombre o iniciales"></div>
+            <div class="f"><label for="estadoMaterial">Estado del material *</label><select id="estadoMaterial"></select></div>
+            <div class="f all"><label for="accion">¿Qué se hizo? *</label><textarea id="accion" maxlength="650" placeholder="Ej. Se avisó al operador, se separó el material afectado y se ajustó el proceso."></textarea></div>
+          </div>
+        </div>
+        <div class="f" style="margin-top:13px"><label for="observaciones">Observaciones adicionales</label><textarea id="observaciones" maxlength="650" placeholder="Detalles de inspección, moldes, circunstancias…"></textarea></div>
+        <div class="bar" style="margin-top:16px"><span class="muted">* Obligatorios · La hora y el turno los asigna el sistema</span><button id="guardar" type="submit" class="primary">Guardar inspección</button></div>
+        <div class="notice" id="mensaje" role="status"></div>
+      </form>
+    </section>
+
+    <!-- TABLERO -->
+    <section class="panel hide" id="tablero">
+      <div class="bar"><h2 style="margin:0">Tablero del turno</h2>
+        <div style="display:flex;gap:8px"><select id="tabTurno" style="width:auto"><option value="0">Turno actual</option><option value="1">Turno anterior</option><option value="2">Hace 2 turnos</option></select><button class="sec" onclick="actualizar()">Actualizar</button></div>
+      </div>
+      <p class="muted" id="tabInfo"></p>
+      <div class="tablero" id="tabGrid"></div>
+      <div class="leyenda">
+        <span><span class="c ok">✓</span> Conforme</span><span><span class="c nc">✗</span> No conforme</span>
+        <span><span class="c abierta">•</span> Franja abierta ahora</span><span><span class="c falta">—</span> Sin registro</span><span><span class="c cola">⏳</span> En cola sin conexión</span>
+      </div>
+    </section>
+
+    <!-- PENDIENTES -->
+    <section class="panel hide" id="pendientes">
+      <div class="bar"><h2 style="margin:0">No conformidades pendientes</h2><button class="sec" onclick="actualizar()">Actualizar</button></div>
+      <p class="muted">Cuando el material se libere o se resuelva, ciérrala aquí para dejar constancia de quién y cómo.</p>
+      <div id="listaPend" class="entries"></div>
+    </section>
+
+    <!-- HISTORIAL -->
+    <section class="panel hide" id="historial">
+      <div class="bar"><h2 style="margin:0">Historial compartido</h2><div style="display:flex;gap:8px"><button class="sec" onclick="exportarCSV()">Descargar CSV</button><button class="sec" onclick="actualizar()">Actualizar</button></div></div>
+      <div class="filters">
+        <select id="fTipo"><option value="">Todos los productos</option></select>
+        <select id="fMaq"><option value="">Todas las máquinas</option></select>
+        <select id="fTurno"><option value="">Todos los turnos</option></select>
+        <select id="fRes"><option value="">Todos los resultados</option><option>Conforme</option><option>No conforme</option></select>
+        <input type="date" id="fDesde" title="Desde"><input type="date" id="fHasta" title="Hasta">
+        <input id="fTexto" placeholder="Buscar inspector, lote, defecto…">
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div id="registros" class="entries" style="margin-top:14px"></div>
+    </section>
+
+    <!-- RESUMEN -->
+    <section class="panel hide" id="resumen">
+      <div class="bar"><h2 style="margin:0">Resumen</h2>
+        <select id="rRango" style="width:auto"><option value="1">Hoy</option><option value="7" selected>Últimos 7 días</option><option value="30">Últimos 30 días</option></select>
+      </div>
+      <div class="kpis" id="rKpis" style="margin-top:14px"></div>
+      <div class="two" style="margin-top:16px">
+        <div><h3>Por máquina</h3><div style="overflow-x:auto"><table class="tbl" id="rMaq"></table></div></div>
+        <div><h3>Defectos más frecuentes (piezas)</h3><div id="rDef"></div></div>
+      </div>
+      <div class="two" style="margin-top:18px">
+        <div><h3>Por turno</h3><div style="overflow-x:auto"><table class="tbl" id="rTurno"></table></div></div>
+        <div><h3>Por presentación</h3><div style="overflow-x:auto"><table class="tbl" id="rPres"></table></div></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+/* ═════════ Estado ═════════ */
+const el = id => document.getElementById(id);
+const S = { pin: '', cfg: null, skew: 0, datos: [], cola: [], tab: 'captura', enviando: false };
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('bt_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('bt_' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const API = 'https://script.google.com/macros/s/AKfycbwBh5nWT8UFblm5kGD9t3vMecjGYm9FdKpnKWHiiC5CryxDUUeUyJHf1AHl3ecC7YIY/exec';
+async function call(fn, ...args) {
+  let r;
+  try {
+    r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn, args }), redirect: 'follow' });
+  } catch (e) { marcarRed(false); throw new Error('Sin conexión'); }
+  if (!r.ok) { marcarRed(false); throw new Error('Sin conexión (' + r.status + ')'); }
+  const j = await r.json();
+  marcarRed(true);
+  if (j.error) throw new Error(j.error);
+  return j.ok;
+}
+function marcarRed(on) {
+  const r = document.getElementById('red'); if (!r) return;
+  r.classList.toggle('off', !on); document.getElementById('redTxt').textContent = on ? 'En línea' : 'Sin conexión · se guarda en el celular';
+}
+window.addEventListener('offline', () => marcarRed(false));
+window.addEventListener('DOMContentLoaded', () => marcarRed(navigator.onLine));
+const esControlado = e => /^(Error: )?(Validación|PIN|Franja)/.test(String(e && e.message || e));
+const limpiaMsg = e => String(e && e.message || e).replace(/^(Error: )?(Validación|PIN|Franja): /, '');
+
+/* ═════════ Hora de planta (sincronizada con el servidor) ═════════ */
+const ahoraMs = () => Date.now() + S.skew;
+function partes(ms) { // fecha/hora en la zona de la hoja
+  const d = new Date(ms + S.cfg.tzOffsetMin * 60000);
+  const p = n => String(n).padStart(2, '0');
+  return { fecha: `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}`, hora: `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`, min: d.getUTCHours() * 60 + d.getUTCMinutes(), seg: d.getUTCSeconds() };
+}
+const hm = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+const aMin = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+function franjaDe(ms) {
+  const p = partes(ms), I = S.cfg.intervalo, ini = Math.floor(p.min / I) * I;
+  return { fecha: p.fecha, inicio: hm(ini), fin: hm(ini + I), etiqueta: p.fecha + ' ' + hm(ini), restanteMin: ini + I - p.min, seg: p.seg };
+}
+function turnoDe(hhmm) {
+  const t = S.cfg.turnos.find(t => t.inicio <= t.fin ? (hhmm >= t.inicio && hhmm < t.fin) : (hhmm >= t.inicio || hhmm < t.fin));
+  return t ? t.turno : S.cfg.turnos[0].turno;
+}
+function clave(etiqueta, tipo, maq) {
+  if (S.cfg.bloqueoPor === 'global') return etiqueta + '|AREA';
+  if (S.cfg.bloqueoPor === 'producto') return etiqueta + '|' + tipo;
+  return etiqueta + '|' + tipo + '|' + maq;
+}
+function ocupante(k) { // registro (o pendiente en cola) que ocupa una clave de franja
+  const r = S.datos.find(x => x.clave === k);
+  if (r) return r;
+  const q = S.cola.find(x => x.clave === k);
+  return q ? { ...q.p, hora: partes(q.p.capturado).hora, enCola: true } : null;
+}
+
+/* ═════════ Arranque ═════════ */
+el('formPin').addEventListener('submit', e => { e.preventDefault(); entrar(el('pin').value); });
+async function entrar(pin, silencioso) {
+  el('btnPin').disabled = true;
+  if (!silencioso) aviso('msgPin', 'Verificando…');
+  try {
+    const t0 = Date.now();
+    let cfg;
+    try {
+      cfg = await call('iniciar', pin);
+      S.skew = cfg.ahora - Math.round((t0 + Date.now()) / 2);
+      LS.set('cfg', cfg); LS.set('skew', S.skew);
+    } catch (err) {
+      // Sin internet: entra con la configuración guardada la última vez
+      if (esControlado(err) || !LS.get('cfg', null) || !pin || pin !== LS.get('pin', '')) throw err;
+      cfg = LS.get('cfg', null); S.skew = LS.get('skew', 0);
+    }
+    S.cfg = cfg; S.pin = pin; LS.set('pin', pin);
+    el('acceso').classList.add('hide'); el('app').classList.remove('hide'); el('reloj').classList.remove('hide');
+    prepararCatalogos();
+    S.cola = LS.get('cola', []);
+    pintarCola();
+    tick(); setInterval(tick, 5000);
+    await actualizar();
+    enviarCola();
+  } catch (e) {
+    el('acceso').classList.remove('hide');
+    if (!(silencioso && !pin)) aviso('msgPin', limpiaMsg(e), true);
+    el('pin').focus();
+    if (/PIN/.test(String(e.message))) LS.set('pin', '');
+  } finally { el('btnPin').disabled = false; }
+}
+
+function opts(sel, items, primero) {
+  sel.replaceChildren(...[...(primero !== undefined ? [primero] : []), ...items].map(v => {
+    const o = document.createElement('option');
+    if (Array.isArray(v)) { o.value = v[0]; o.textContent = v[1]; } else { o.value = v; o.textContent = v || 'Seleccionar'; }
+    return o;
+  }));
+}
+function prepararCatalogos() {
+  const c = S.cfg.catalogos;
+  opts(el('tipo'), c.productos);
+  opts(el('estadoMaterial'), c.estadosMaterial, '');
+  opts(el('fTipo'), c.productos, ['', 'Todos los productos']);
+  opts(el('fTurno'), S.cfg.turnos.map(t => [t.turno, 'Turno ' + t.turno]), ['', 'Todos los turnos']);
+  const todas = [...new Set(c.productos.flatMap(p => c.maquinas[p] || []))];
+  opts(el('fMaq'), todas, ['', 'Todas las máquinas']);
+  el('inspector').value = LS.get('inspector', '');
+  const ult = LS.get('ultimo', {});
+  if (c.productos.includes(ult.tipo)) el('tipo').value = ult.tipo;
+  cambiarTipo();
+  if ((c.maquinas[el('tipo').value] || []).includes(ult.maquina)) el('maquina').value = ult.maquina;
+  if ((c.presentaciones[el('tipo').value] || []).includes(ult.presentacion)) el('presentacion').value = ult.presentacion;
+  estadoFranja();
+}
+function cambiarTipo() {
+  const t = el('tipo').value, c = S.cfg.catalogos;
+  opts(el('maquina'), c.maquinas[t] || []);
+  opts(el('presentacion'), c.presentaciones[t] || [], '');
+  opts(el('defecto'), c.defectos[t] || [], '');
+  marcarMaquinas(); estadoFranja();
+}
+function marcarMaquinas() { // ✓ en las máquinas que ya registraron la franja actual
+  const f = franjaDe(ahoraMs()), t = el('tipo').value;
+  [...el('maquina').options].forEach(o => {
+    const oc = ocupante(clave(f.etiqueta, t, o.value));
+    o.textContent = o.value + (oc ? '  ✓ ' + f.inicio : '');
+  });
+}
+
+/* ═════════ Reloj y estado de franja ═════════ */
+function tick() {
+  if (!S.cfg) return;
+  const p = partes(ahoraMs()), f = franjaDe(ahoraMs());
+  el('relojHora').textContent = p.hora;
+  el('relojInfo').textContent = `Turno ${turnoDe(p.hora)} · franja ${f.inicio}–${f.fin}`;
+  el('ahoraTxt').value = p.fecha + ' ' + p.hora;
+  el('turnoTxt').value = 'Turno ' + turnoDe(p.hora);
+  if (S._ultEtiq !== f.etiqueta) { S._ultEtiq = f.etiqueta; marcarMaquinas(); if (S.tab === 'tablero') pintarTablero(); }
+  estadoFranja();
+}
+function estadoFranja() {
+  if (!S.cfg) return;
+  const f = franjaDe(ahoraMs()), t = el('tipo').value, m = el('maquina').value;
+  const oc = ocupante(clave(f.etiqueta, t, m));
+  const quien = S.cfg.bloqueoPor === 'global' ? 'el área' : S.cfg.bloqueoPor === 'producto' ? t : m;
+  const box = el('franjaBox');
+  if (oc) {
+    box.className = 'franja ocupada'; el('franjaIco').textContent = '⏱';
+    el('franjaTit').textContent = `Franja ${f.inicio}–${f.fin} de ${quien} ya registrada`;
+    el('franjaSub').textContent = `Por ${oc.inspector} a las ${oc.hora}${oc.enCola ? ' (en cola sin conexión)' : ''}. Siguiente registro a las ${f.fin} · faltan ${f.restanteMin} min.`;
+    el('guardar').disabled = true; el('guardar').textContent = 'Disponible a las ' + f.fin;
+  } else {
+    box.className = 'franja libre'; el('franjaIco').textContent = '✓';
+    el('franjaTit').textContent = `Franja ${f.inicio}–${f.fin} disponible para ${quien}`;
+    el('franjaSub').textContent = `Cierra en ${f.restanteMin} min. Después se abre la de las ${f.fin}.`;
+    if (!S.enviando) { el('guardar').disabled = false; el('guardar').textContent = 'Guardar inspección'; }
+  }
+}
+
+/* ═════════ Formulario ═════════ */
+el('tipo').addEventListener('change', cambiarTipo);
+el('maquina').addEventListener('change', estadoFranja);
+document.querySelectorAll('input[name=resultado]').forEach(r => r.addEventListener('change', sincronizarResultado));
+el('noConformes').addEventListener('input', () => {
+  const n = Number(el('noConformes').value);
+  document.querySelector(`input[name=resultado][value="${n > 0 ? 'No conforme' : 'Conforme'}"]`).checked = true;
+  el('noConformidad').classList.toggle('hide', !(n > 0));
+});
+function resultado() { return document.querySelector('input[name=resultado]:checked').value; }
+function sincronizarResultado() {
+  const r = resultado();
+  el('noConformidad').classList.toggle('hide', r !== 'No conforme');
+  if (r === 'No conforme' && Number(el('noConformes').value) === 0) el('noConformes').value = '1';
+  if (r === 'Conforme') el('noConformes').value = '0';
+}
+function aviso(id, m, error) { el(id).textContent = m; el(id).className = 'notice ' + (error ? 'error' : 'ok'); }
+function uuid() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+}
+
+el('form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const r = resultado();
+  const p = {
+    id: uuid(), tipo: el('tipo').value, maquina: el('maquina').value, inspector: el('inspector').value.trim(),
+    presentacion: el('presentacion').value, lote: el('lote').value, cantidad: Number(el('cantidad').value), noConformes: Number(el('noConformes').value),
+    resultado: r, defecto: el('defecto').value, operador: el('operador').value, estadoMaterial: el('estadoMaterial').value,
+    accion: el('accion').value, observaciones: el('observaciones').value, capturado: ahoraMs()
+  };
+  if (!p.inspector) return aviso('mensaje', 'Escribe tu nombre o iniciales.', true);
+  if (!p.presentacion) return aviso('mensaje', 'Selecciona la presentación.', true);
+  if (!Number.isInteger(p.cantidad) || p.cantidad < 1) return aviso('mensaje', 'Revisa las piezas inspeccionadas.', true);
+  if (p.noConformes > p.cantidad) return aviso('mensaje', 'Las piezas no conformes no pueden superar las inspeccionadas.', true);
+  if ((r === 'No conforme' && (p.noConformes < 1 || !p.defecto || !p.operador.trim() || !p.estadoMaterial || !p.accion.trim())) || (r === 'Conforme' && p.noConformes !== 0))
+    return aviso('mensaje', 'Completa los datos de la no conformidad (defecto, operador, estado y acción).', true);
+  const f = franjaDe(p.capturado), k = clave(f.etiqueta, p.tipo, p.maquina);
+  if (ocupante(k)) return estadoFranja();
+
+  LS.set('inspector', p.inspector);
+  LS.set('ultimo', { tipo: p.tipo, maquina: p.maquina, presentacion: p.presentacion });
+  S.enviando = true; el('guardar').disabled = true; aviso('mensaje', 'Guardando…');
+  try {
+    const out = await call('guardar', S.pin, p);
+    aviso('mensaje', `✓ Guardado · ${p.maquina} · franja ${out.franja.inicio}–${out.franja.fin} · turno ${out.turno}. Siguiente a las ${out.franja.fin}.`);
+    limpiarForm();
+    S.datos.unshift({ ...p, id: out.id, fecha: out.fecha, hora: out.hora, turno: out.turno, clave: k, franja: out.franja.inicio + '–' + out.franja.fin, seguimiento: r === 'No conforme' ? 'Pendiente' : 'Cerrado' });
+    actualizar(true);
+  } catch (err) {
+    if (esControlado(err)) { aviso('mensaje', limpiaMsg(err), true); actualizar(true); }
+    else {
+      S.cola.push({ p: { ...p, diferido: true }, clave: k }); LS.set('cola', S.cola); pintarCola();
+      aviso('mensaje', '⚠ Sin conexión: el registro quedó guardado en este dispositivo y se enviará solo al volver la señal (máx. 8 h).', true);
+      limpiarForm();
+    }
+  } finally { S.enviando = false; marcarMaquinas(); estadoFranja(); }
+});
+function limpiarForm() {
+  ['lote', 'operador', 'accion', 'observaciones'].forEach(id => el(id).value = '');
+  el('defecto').value = ''; el('estadoMaterial').value = ''; el('noConformes').value = '0';
+  document.querySelector('input[name=resultado][value="Conforme"]').checked = true; sincronizarResultado();
+}
+
+/* ═════════ Cola sin conexión ═════════ */
+function pintarCola() {
+  el('colaBox').classList.toggle('hide', !S.cola.length);
+  el('colaTxt').textContent = `⏳ ${S.cola.length} registro(s) guardados en este dispositivo esperando conexión.`;
+}
+async function enviarCola(manual) {
+  if (!S.cola.length || S._colaOcupada) return;
+  S._colaOcupada = true;
+  const fallidos = [];
+  for (const item of [...S.cola]) {
+    try {
+      await call('guardar', S.pin, item.p);
+      S.cola = S.cola.filter(x => x !== item);
+    } catch (err) {
+      if (esControlado(err)) { S.cola = S.cola.filter(x => x !== item); fallidos.push(item.p.maquina + ' ' + partes(item.p.capturado).hora + ': ' + limpiaMsg(err)); }
+      else break; // sigue sin conexión
+    }
+  }
+  LS.set('cola', S.cola); pintarCola(); S._colaOcupada = false;
+  if (fallidos.length) alertaSuave('No se aceptaron algunos registros de la cola:\n' + fallidos.join('\n'));
+  else if (manual && !S.cola.length) aviso('mensaje', '✓ Cola enviada.');
+  actualizar(true);
+}
+function alertaSuave(t) { aviso('mensaje', t, true); }
+window.addEventListener('online', () => enviarCola());
+setInterval(() => enviarCola(), 60000);
+
+/* ═════════ Datos ═════════ */
+async function actualizar(silencioso) {
+  try {
+    S.datos = (await call('listar', S.pin)) || [];
+    LS.set('datos', S.datos);
+    if (!silencioso) aviso('mensaje', '');
+  } catch (e) {
+    if (!S.datos.length) S.datos = LS.get('datos', []);
+    if (!silencioso && S.tab !== 'captura') el(S.tab === 'historial' ? 'registros' : 'listaPend').textContent = 'No se pudo cargar: ' + limpiaMsg(e);
+  }
+  const pend = S.datos.filter(x => x.seguimiento === 'Pendiente').length;
+  el('badgePend').textContent = pend; el('badgePend').classList.toggle('hide', !pend);
+  marcarMaquinas(); estadoFranja(); pintarTab();
+}
+
+/* ═════════ Pestañas ═════════ */
+document.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => {
+  S.tab = b.dataset.t;
+  document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('active', x === b));
+  ['captura', 'tablero', 'pendientes', 'historial', 'resumen'].forEach(id => el(id).classList.toggle('hide', id !== S.tab));
+  pintarTab();
+  if (S.tab !== 'captura') actualizar(true);
+}));
+function pintarTab() {
+  if (S.tab === 'tablero') pintarTablero();
+  else if (S.tab === 'pendientes') pintarPendientes();
+  else if (S.tab === 'historial') pintarHistorial();
+  else if (S.tab === 'resumen') pintarResumen();
+}
+el('tabTurno').addEventListener('change', pintarTablero);
+['fTipo', 'fMaq', 'fTurno', 'fRes', 'fDesde', 'fHasta', 'fTexto'].forEach(id => el(id).addEventListener('input', pintarHistorial));
+el('rRango').addEventListener('change', pintarResumen);
+
+/* ═════════ Tablero ═════════ */
+function turnoVentana(atras) { // inicio/fin (ms) del turno actual o anteriores
+  const ts = S.cfg.turnos, now = ahoraMs();
+  // busca hacia atrás minuto a minuto el inicio del turno, por bloques de turnos
+  let fin = null, ini = null, ms = now, turno;
+  for (let n = 0; n <= atras; n++) {
+    const p = partes(ms); turno = ts.find(t => t.turno === turnoDe(p.hora));
+    let dur = aMin(turno.fin) - aMin(turno.inicio); if (dur <= 0) dur += 1440;
+    let trans = p.min - aMin(turno.inicio); if (trans < 0) trans += 1440;
+    ini = ms - trans * 60000 - p.seg * 1000 - (ms % 1000);
+    fin = ini + dur * 60000;
+    ms = ini - 60000;
+  }
+  return { ini, fin, turno: turno.turno };
+}
+function pintarTablero() {
+  const atras = Number(el('tabTurno').value), v = turnoVentana(atras), I = S.cfg.intervalo * 60000, now = ahoraMs();
+  const franjas = [];
+  for (let t = v.ini; t < v.fin && t <= now; t += I) franjas.push({ ms: t, f: franjaDe(t) });
+  el('tabInfo').textContent = `Turno ${v.turno} · ${partes(v.ini).fecha} ${partes(v.ini).hora} a ${partes(v.fin).hora} · franjas de ${S.cfg.intervalo} min`;
+  const c = S.cfg.catalogos, filas = [];
+  const tabla = document.createElement('table'), thead = document.createElement('tr');
+  const th0 = document.createElement('th'); th0.className = 'maq'; th0.textContent = 'Máquina'; thead.append(th0);
+  franjas.forEach(x => { const th = document.createElement('th'); th.textContent = x.f.inicio; thead.append(th); });
+  const thp = document.createElement('th'); thp.textContent = 'Cumpl.'; thead.append(thp);
+  tabla.append(thead);
+  const grupos = S.cfg.bloqueoPor === 'global' ? [['Área completa', [['', '']]]] :
+    c.productos.map(p => [p, S.cfg.bloqueoPor === 'producto' ? [[p, '']] : (c.maquinas[p] || []).map(m => [p, m])]);
+  for (const [nombre, items] of grupos) {
+    if (S.cfg.bloqueoPor === 'maquina') { const g = document.createElement('tr'); g.className = 'grupo'; const td = document.createElement('td'); td.colSpan = franjas.length + 2; td.textContent = nombre; g.append(td); tabla.append(g); }
+    for (const [tipo, maq] of items) {
+      const tr = document.createElement('tr'), td0 = document.createElement('td'); td0.className = 'maq';
+      td0.textContent = S.cfg.bloqueoPor === 'maquina' ? maq : nombre; tr.append(td0);
+      let hechas = 0, cerradas = 0;
+      franjas.forEach(x => {
+        const td = document.createElement('td'), s = document.createElement('span');
+        const oc = ocupante(clave(x.f.etiqueta, tipo, maq)), abierta = now < x.ms + I;
+        if (!abierta) cerradas++;
+        if (oc) { hechas += abierta ? 0 : 1; if (abierta) cerradas++, hechas++;
+          s.className = 'c ' + (oc.enCola ? 'cola' : oc.resultado === 'No conforme' ? 'nc' : 'ok');
+          s.textContent = oc.enCola ? '⏳' : oc.resultado === 'No conforme' ? '✗' : '✓';
+          s.title = `${oc.hora} · ${oc.inspector} · ${oc.cantidad} pzs / ${oc.noConformes} NC${oc.defecto ? ' · ' + oc.defecto : ''}`;
+        } else if (abierta) { s.className = 'c abierta'; s.textContent = '•'; s.title = 'Franja abierta'; }
+        else { s.className = 'c falta'; s.textContent = '—'; s.title = 'Sin registro'; }
+        td.append(s); tr.append(td);
+      });
+      const tdp = document.createElement('td'); tdp.textContent = cerradas ? Math.round(hechas / cerradas * 100) + '%' : '—'; tr.append(tdp);
+      tabla.append(tr);
+    }
+  }
+  el('tabGrid').replaceChildren(tabla);
+}
+
+/* ═════════ Pendientes ═════════ */
+function tarjeta(x) {
+  const a = document.createElement('article'); a.className = 'entry';
+  const h = document.createElement('div'); h.className = 'row';
+  const t = document.createElement('strong'); t.textContent = x.tipo + ' · ' + x.maquina;
+  const b = document.createElement('span');
+  b.className = 'pill' + (x.resultado === 'No conforme' ? (x.seguimiento === 'Pendiente' ? ' pend' : ' bad') : '');
+  b.textContent = x.resultado === 'No conforme' ? (x.seguimiento === 'Pendiente' ? 'NC pendiente' : 'NC cerrada') : 'Conforme';
+  h.append(t, b);
+  const s = document.createElement('div'); s.className = 'muted';
+  s.textContent = `${x.fecha} ${x.hora}${x.franja ? ' (franja ' + x.franja + ')' : ''} · Turno ${x.turno} · ${x.inspector} · ${x.cantidad} inspeccionadas / ${x.noConformes} no conformes${x.lote ? ' · Lote ' + x.lote : ''}${x.presentacion ? ' · ' + x.presentacion : ''}`;
+  a.append(h, s);
+  let det = '';
+  if (x.resultado === 'No conforme') det += `Defecto: ${x.defecto} · Operador: ${x.operador}\nAcción: ${x.accion}\nMaterial: ${x.estadoMaterial}`;
+  if (x.cerradoPor) det += `\nCerrada por ${x.cerradoPor} el ${x.cerradoEl}: ${x.comentarioCierre}`;
+  if (x.observaciones) det += (det ? '\n' : '') + 'Obs.: ' + x.observaciones;
+  if (x.origen && x.origen !== 'En línea') det += (det ? '\n' : '') + x.origen;
+  if (det) { const p = document.createElement('p'); p.className = 'details'; p.textContent = det; a.append(p); }
+  return a;
+}
+function pintarPendientes() {
+  const root = el('listaPend'), d = S.datos.filter(x => x.seguimiento === 'Pendiente');
+  root.replaceChildren();
+  if (!d.length) { root.textContent = '✓ No hay no conformidades pendientes.'; return; }
+  for (const x of d) {
+    const a = tarjeta(x), box = document.createElement('div'); box.className = 'cierre';
+    const btn = document.createElement('button'); btn.className = 'sec'; btn.textContent = 'Cerrar no conformidad';
+    btn.onclick = () => { btn.remove(); box.append(formCierre(x)); };
+    box.append(btn); a.append(box); root.append(a);
+  }
+}
+function formCierre(x) {
+  const f = document.createElement('form'); f.className = 'grid';
+  f.innerHTML = `<div class="f"><label>Cerrada por *</label><input name="resp" maxlength="90" required></div>
+    <div class="f wide"><label>¿Cómo se resolvió? *</label><input name="com" maxlength="650" required placeholder="Ej. Material liberado por Calidad, molde ajustado"></div>
+    ${S.cfg.requiereSupervisor ? '<div class="f"><label>PIN supervisor *</label><input name="sup" type="password" inputmode="numeric" required></div>' : ''}
+    <div class="f" style="justify-content:flex-end"><button class="primary" type="submit">Confirmar cierre</button></div>
+    <div class="f all notice" role="status"></div>`;
+  f.resp.value = LS.get('inspector', '');
+  f.addEventListener('submit', async e => {
+    e.preventDefault(); const n = f.querySelector('.notice'); n.textContent = 'Cerrando…'; n.className = 'f all notice';
+    try {
+      await call('cerrarNC', S.pin, f.sup ? f.sup.value : '', x.id, f.resp.value, f.com.value);
+      await actualizar(true);
+    } catch (err) { n.textContent = limpiaMsg(err); n.className = 'f all notice error'; }
+  });
+  return f;
+}
+
+/* ═════════ Historial ═════════ */
+function filtrados() {
+  const t = el('fTipo').value, m = el('fMaq').value, u = el('fTurno').value, r = el('fRes').value, d1 = el('fDesde').value, d2 = el('fHasta').value, q = el('fTexto').value.trim().toLowerCase();
+  return S.datos.filter(x => (!t || x.tipo === t) && (!m || x.maquina === m) && (!u || x.turno === u) && (!r || x.resultado === r) && (!d1 || x.fecha >= d1) && (!d2 || x.fecha <= d2) &&
+    (!q || [x.inspector, x.lote, x.defecto, x.operador, x.accion, x.observaciones, x.maquina].join(' ').toLowerCase().includes(q)));
+}
+function kpis(root, d) {
+  const pz = d.reduce((s, x) => s + x.cantidad, 0), nc = d.reduce((s, x) => s + x.noConformes, 0);
+  const vals = [['Inspecciones', d.length], ['Piezas inspeccionadas', pz.toLocaleString('es-MX')], ['% no conforme', pz ? (nc / pz * 100).toFixed(1) + '%' : '—'], ['NC pendientes', d.filter(x => x.seguimiento === 'Pendiente').length]];
+  root.replaceChildren(...vals.map(([k, v]) => { const dv = document.createElement('div'); dv.className = 'kpi'; const s = document.createElement('small'); s.textContent = k; const b = document.createElement('strong'); b.textContent = v; dv.append(s, b); return dv; }));
+}
+function pintarHistorial() {
+  const d = filtrados(); kpis(el('kpis'), d);
+  const root = el('registros'); root.replaceChildren();
+  if (!d.length) { root.textContent = S.datos.length ? 'No hay registros para estos filtros.' : 'Aún no hay registros.'; return; }
+  d.slice(0, 200).forEach(x => root.append(tarjeta(x)));
+  if (d.length > 200) { const p = document.createElement('p'); p.className = 'muted'; p.textContent = `Mostrando 200 de ${d.length}. Descarga el CSV para ver todos.`; root.append(p); }
+}
+function exportarCSV() {
+  const cols = [['fecha', 'Fecha'], ['hora', 'Hora'], ['franja', 'Franja'], ['turno', 'Turno'], ['tipo', 'Producto'], ['maquina', 'Máquina'], ['presentacion', 'Presentación'], ['lote', 'Lote'], ['inspector', 'Inspector'], ['cantidad', 'Inspeccionadas'], ['noConformes', 'No conformes'], ['resultado', 'Resultado'], ['defecto', 'Defecto'], ['operador', 'Operador'], ['accion', 'Acción'], ['estadoMaterial', 'Estado material'], ['seguimiento', 'Seguimiento'], ['cerradoPor', 'Cerrado por'], ['cerradoEl', 'Cerrado el'], ['comentarioCierre', 'Comentario cierre'], ['observaciones', 'Observaciones'], ['id', 'ID']];
+  const esc = v => { let s = String(v ?? ''); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const csv = '﻿' + [cols.map(c => esc(c[1])).join(','), ...filtrados().map(x => cols.map(c => esc(x[c[0]])).join(','))].join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'inspecciones_' + partes(ahoraMs()).fecha + '.csv'; document.body.append(a); a.click(); a.remove();
+}
+
+/* ═════════ Resumen ═════════ */
+function pintarResumen() {
+  const dias = Number(el('rRango').value), desde = partes(ahoraMs() - (dias - 1) * 864e5).fecha;
+  const d = S.datos.filter(x => x.fecha >= desde); kpis(el('rKpis'), d);
+  const agrupa = (key) => { const m = new Map(); d.forEach(x => { const k = key(x); const o = m.get(k) || { n: 0, pz: 0, nc: 0, insp: 0 }; o.insp++; o.pz += x.cantidad; o.nc += x.noConformes; if (x.resultado === 'No conforme') o.n++; m.set(k, o); }); return m; };
+  const tabla = (id, titulo, m) => {
+    const t = el(id); t.replaceChildren();
+    const h = document.createElement('tr'); [titulo, 'Inspecc.', 'Piezas', 'NC pzs', '% NC', 'Registros NC'].forEach(x => { const th = document.createElement('th'); th.textContent = x; h.append(th); }); t.append(h);
+    if (!m.size) { const r = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 6; td.textContent = 'Sin datos en el periodo.'; r.append(td); t.append(r); return; }
+    [...m.entries()].sort((a, b) => b[1].nc / (b[1].pz || 1) - a[1].nc / (a[1].pz || 1)).forEach(([k, o]) => {
+      const r = document.createElement('tr');
+      [k, o.insp, o.pz.toLocaleString('es-MX'), o.nc, o.pz ? (o.nc / o.pz * 100).toFixed(1) + '%' : '—', o.n].forEach(v => { const td = document.createElement('td'); td.textContent = v; r.append(td); });
+      t.append(r);
+    });
+  };
+  tabla('rMaq', 'Máquina', agrupa(x => x.maquina));
+  tabla('rTurno', 'Turno', agrupa(x => 'Turno ' + x.turno));
+  tabla('rPres', 'Presentación', agrupa(x => (x.tipo === 'Tapas' ? '' : x.tipo + ' · ') + (x.presentacion || 'Sin dato')));
+  const def = new Map(); d.filter(x => x.defecto).forEach(x => def.set(x.defecto, (def.get(x.defecto) || 0) + x.noConformes));
+  const top = [...def.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8), max = top.length ? top[0][1] : 1;
+  const root = el('rDef'); root.replaceChildren();
+  if (!top.length) { root.innerHTML = '<p class="muted">Sin defectos registrados en el periodo.</p>'; return; }
+  top.forEach(([k, v]) => {
+    const row = document.createElement('div'); row.className = 'hbar';
+    const n = document.createElement('span'); n.textContent = k; n.style.overflow = 'hidden'; n.style.textOverflow = 'ellipsis'; n.style.whiteSpace = 'nowrap'; n.title = k;
+    const tr = document.createElement('div'); tr.className = 'track'; const fi = document.createElement('div'); fi.className = 'fill'; fi.style.width = (v / max * 100) + '%'; tr.append(fi);
+    const c = document.createElement('span'); c.textContent = v; c.style.textAlign = 'right';
+    row.append(n, tr, c); root.append(row);
+  });
+}
+
+/* Entrada automática si ya se guardó la clave en este dispositivo */
+// (si el responsable dejó PIN_ACCESO vacío, entra directo)
+entrar(LS.get('pin', ''), true);
+
+/* App instalable: funciona sin internet y se instala como app */
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+let promptInstalar = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); promptInstalar = e; el('btnInstalar').classList.remove('hide'); });
+el('btnInstalar').addEventListener('click', async () => { if (!promptInstalar) return; promptInstalar.prompt(); await promptInstalar.userChoice; promptInstalar = null; el('btnInstalar').classList.add('hide'); });
+window.addEventListener('appinstalled', () => el('btnInstalar').classList.add('hide'));
+</script>
+</body>
+</html>
