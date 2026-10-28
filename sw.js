@@ -1,6 +1,6 @@
 /* Service worker: guarda la app en el celular para que abra sin internet.
    Cambia VERSION cada vez que publiques cambios. */
-const VERSION = 'inspecciones-v1';
+const VERSION = 'inspecciones-v3';
 const ARCHIVOS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
